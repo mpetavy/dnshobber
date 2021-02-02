@@ -1,17 +1,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/getlantern/systray"
 	"github.com/mpetavy/common"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 const (
-	Ethernet     = "Ethernet"
-	PiholeIp     = "192.168.1.1"
-	CloudflareIp = "1.1.1.1"
+	Ethernet = "Ethernet"
 )
 
 var (
@@ -25,14 +25,16 @@ var (
 )
 
 var (
-	icon           []byte
-	menuPiHole     *systray.MenuItem
-	menuCloudflare *systray.MenuItem
-	menuQuit       *systray.MenuItem
+	icon       []byte
+	dnsServers common.MultiValueFlag
+	menus      []*systray.MenuItem
 )
 
 func init() {
 	common.Init(true, LDFLAG_VERSION, LDFLAG_GIT, "2021", "Simple DNS switcher", LDFLAG_DEVELOPER, LDFLAG_HOMEPAGE, LDFLAG_LICENSE, start, nil, nil, 0)
+
+	flag.Var(&dnsServers, "s", "DNS servers")
+	dnsServers = []string{"192.168.1.7", "1.1.1.1", "8.8.4.4"}
 }
 
 func start() error {
@@ -55,25 +57,46 @@ func onReady() {
 	systray.SetTitle(common.Title())
 	systray.SetTooltip("DNS switcher")
 
-	menuPiHole = systray.AddMenuItem("Pi-Hole", "Switch to Pi-Hole DNS")
-	menuCloudflare = systray.AddMenuItem("Cloudflare", "Switch to Cloudflare DNS")
+	menus = make([]*systray.MenuItem, 0)
+	clickCh := make(chan *systray.MenuItem)
+
+	for _, dnsServer := range dnsServers {
+		menu := systray.AddMenuItem(dnsServer, fmt.Sprintf("Switch to %s DNS", dnsServer))
+		menus = append(menus, menu)
+
+		go func(menu *systray.MenuItem) {
+			for {
+				<-menu.ClickedCh
+				clickCh <- menu
+			}
+		}(menu)
+	}
+
 	systray.AddSeparator()
-	menuQuit = systray.AddMenuItem("Quit", fmt.Sprintf("Quit %s", common.Title()))
+	menuQuit := systray.AddMenuItem("Quit", fmt.Sprintf("Quit %s", common.Title()))
+	go func() {
+		for {
+			<-menuQuit.ClickedCh
+			os.Exit(0)
+		}
+	}()
 
 	for {
 		select {
-		case <-menuPiHole.ClickedCh:
-			menuCloudflare.Uncheck()
-			menuPiHole.Check()
+		case clickMenu := <-clickCh:
+			for _, menu := range menus {
+				menu.Uncheck()
+			}
 
-			dns(PiholeIp)
-		case <-menuCloudflare.ClickedCh:
-			menuPiHole.Uncheck()
-			menuCloudflare.Check()
+			clickMenu.Check()
 
-			dns(CloudflareIp)
-		case <-menuQuit.ClickedCh:
-			os.Exit(0)
+			t := clickMenu.String()
+			t = t[:len(t)-2]
+
+			p := strings.LastIndex(t, "\"")
+			t = t[p+1:]
+
+			dns(t)
 		}
 	}
 }
