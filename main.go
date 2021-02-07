@@ -34,7 +34,7 @@ func init() {
 	common.Init(true, LDFLAG_VERSION, LDFLAG_GIT, "2021", "Simple DNS switcher", LDFLAG_DEVELOPER, LDFLAG_HOMEPAGE, LDFLAG_LICENSE, start, nil, nil, 0)
 
 	flag.Var(&dnsServers, "s", "DNS servers")
-	dnsServers = []string{"192.168.1.7", "1.1.1.1", "8.8.4.4"}
+	dnsServers = []string{"192.168.1.1", "192.168.1.7", "1.1.1.1", "8.8.4.4"}
 }
 
 func start() error {
