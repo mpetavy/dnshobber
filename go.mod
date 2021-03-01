@@ -1,8 +1,8 @@
 module dnshobber
 
-go 1.15
+go 1.16
 
 require (
 	github.com/getlantern/systray v1.1.0
-	github.com/mpetavy/common v1.1.91
+	github.com/mpetavy/common v1.1.92
 )
