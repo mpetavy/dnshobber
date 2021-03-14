@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"github.com/getlantern/systray"
@@ -28,10 +29,12 @@ var (
 	icon       []byte
 	dnsServers common.MultiValueFlag
 	menus      []*systray.MenuItem
+	//go:embed static
+	static embed.FS
 )
 
 func init() {
-	common.Init(false, LDFLAG_VERSION, LDFLAG_GIT, "2021", "Simple DNS switcher", LDFLAG_DEVELOPER, LDFLAG_HOMEPAGE, LDFLAG_LICENSE, start, nil, nil, 0)
+	common.Init(false, LDFLAG_VERSION, LDFLAG_GIT, "2021", "Simple DNS switcher", LDFLAG_DEVELOPER, LDFLAG_HOMEPAGE, LDFLAG_LICENSE, &static, start, nil, nil, 0)
 
 	flag.Var(&dnsServers, "s", "DNS servers")
 	dnsServers = []string{"192.168.1.1", "192.168.1.7", "1.1.1.1", "8.8.4.4"}
@@ -40,7 +43,7 @@ func init() {
 func start() error {
 	var err error
 
-	icon, err = Binpack_Icon_favicon32x32Ico.Unpack()
+	icon, _, err = common.ReadResource("favicon-32x32.ico")
 	if common.Error(err) {
 		return err
 	}
