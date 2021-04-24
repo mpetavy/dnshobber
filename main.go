@@ -22,7 +22,7 @@ var (
 	LDFLAG_VERSION   = "1.0.0"                                // will be replaced with ldflag
 	LDFLAG_EXPIRE    = ""                                     // will be replaced with ldflag
 	LDFLAG_GIT       = ""                                     // will be replaced with ldflag
-	LDFLAG_COUNTER   = ""                                     // will be replaced with ldflag
+	LDFLAG_BUILD     = ""                                     // will be replaced with ldflag
 )
 
 var (
@@ -34,7 +34,7 @@ var (
 )
 
 func init() {
-	common.Init(false, LDFLAG_VERSION, LDFLAG_GIT, "2021", "Simple DNS switcher", LDFLAG_DEVELOPER, LDFLAG_HOMEPAGE, LDFLAG_LICENSE, &static, start, nil, nil, 0)
+	common.Init(false, LDFLAG_VERSION, LDFLAG_GIT, LDFLAG_BUILD, "2021", "Simple DNS switcher", LDFLAG_DEVELOPER, LDFLAG_HOMEPAGE, LDFLAG_LICENSE, &static, start, nil, nil, 0)
 
 	flag.Var(&dnsServers, "s", "DNS servers")
 	dnsServers = []string{"192.168.1.1", "192.168.1.7", "1.1.1.1", "8.8.4.4"}
