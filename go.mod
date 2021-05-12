@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/getlantern/systray v1.1.0
-	github.com/mpetavy/common v1.2.6
+	github.com/mpetavy/common v1.2.8
 )
 
 //replace github.com/mpetavy/common => ../common
